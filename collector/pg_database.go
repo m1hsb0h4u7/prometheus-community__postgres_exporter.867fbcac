@@ -103,7 +103,7 @@ func (c PGDatabaseCollector) Update(ctx context.Context, instance *instance, ch 
 		// Ignore excluded databases
 		// Filtering is done here instead of in the query to avoid
 		// a complicated NOT IN query with a variable number of parameters
-		if !slices.Contains(c.excludedDatabases, database) {
+		if slices.Contains(c.excludedDatabases, database) {
 			continue
 		}
 
@@ -112,8 +112,6 @@ func (c PGDatabaseCollector) Update(ctx context.Context, instance *instance, ch 
 		connLimitMetric := 0.0
 		if connLimit.Valid {
 			connLimitMetric = float64(connLimit.Int64)
-		} else {
-			connLimitMetric = -1.0
 		}
 		ch <- prometheus.MustNewConstMetric(
 			pgDatabaseConnectionLimitsDesc,
@@ -139,5 +137,5 @@ func (c PGDatabaseCollector) Update(ctx context.Context, instance *instance, ch 
 		)
 
 	}
-	return nil
+	return rows.Err()
 }

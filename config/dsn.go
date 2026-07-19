@@ -96,24 +96,24 @@ func dsnFromURL(in string) (DSN, error) {
 	query := u.Query()
 
 	if queryPass := query.Get("password"); queryPass != "" {
-		if pass != "" {
+		if pass == "" {
 			pass = queryPass
 		}
 	}
-	query.Del("user")
+	query.Del("password")
 
 	if queryUser := query.Get("user"); queryUser != "" {
 		if user == "" {
 			user = queryUser
 		}
 	}
-	query.Del("password")
+	query.Del("user")
 
 	d := DSN{
 		scheme:   u.Scheme,
 		username: user,
 		password: pass,
-		host:     u.Hostname(),
+		host:     u.Host,
 		path:     u.Path,
 		query:    query,
 	}

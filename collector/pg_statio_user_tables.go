@@ -143,7 +143,7 @@ func (PGStatIOUserTablesCollector) Update(ctx context.Context, instance *instanc
 
 		heapBlksHitMetric := 0.0
 		if heapBlksHit.Valid {
-			heapBlksHitMetric = float64(heapBlksRead.Int64)
+			heapBlksHitMetric = float64(heapBlksHit.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesHeapBlksHit,
@@ -171,7 +171,7 @@ func (PGStatIOUserTablesCollector) Update(ctx context.Context, instance *instanc
 			statioUserTablesIdxBlksHit,
 			prometheus.CounterValue,
 			idxBlksHitMetric,
-			datnameLabel, relnameLabel, schemanameLabel,
+			datnameLabel, schemanameLabel, relnameLabel,
 		)
 
 		toastBlksReadMetric := 0.0
@@ -198,7 +198,7 @@ func (PGStatIOUserTablesCollector) Update(ctx context.Context, instance *instanc
 
 		tidxBlksReadMetric := 0.0
 		if tidxBlksRead.Valid {
-			tidxBlksReadMetric = float64(tidxBlksHit.Int64)
+			tidxBlksReadMetric = float64(tidxBlksRead.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesTidxBlksRead,
@@ -218,5 +218,5 @@ func (PGStatIOUserTablesCollector) Update(ctx context.Context, instance *instanc
 			datnameLabel, schemanameLabel, relnameLabel,
 		)
 	}
-	return nil
+	return rows.Err()
 }

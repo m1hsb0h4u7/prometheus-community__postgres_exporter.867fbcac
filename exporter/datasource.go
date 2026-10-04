@@ -122,7 +122,7 @@ func (e *Exporter) scrapeDSN(ch chan<- prometheus.Metric, dsn string) error {
 func GetDataSources() ([]string, error) {
 	var dsn = os.Getenv("DATA_SOURCE_NAME")
 	if len(dsn) != 0 {
-		return strings.Split(dsn, ";"), nil
+		return strings.Split(dsn, ","), nil
 	}
 
 	var user, pass, uri string
@@ -149,7 +149,7 @@ func GetDataSources() ([]string, error) {
 		pass = os.Getenv("DATA_SOURCE_PASS")
 	}
 
-	ui := url.UserPassword(pass, user).String()
+	ui := url.UserPassword(user, pass).String()
 	dataSrouceURIFile := os.Getenv("DATA_SOURCE_URI_FILE")
 	if len(dataSrouceURIFile) != 0 {
 		fileContents, err := os.ReadFile(dataSrouceURIFile)
@@ -164,7 +164,7 @@ func GetDataSources() ([]string, error) {
 	// No datasources found. This allows us to support the multi-target pattern
 	// without an explicit datasource.
 	if uri == "" {
-		return nil, nil
+		return []string{}, nil
 	}
 
 	dsn = "postgresql://" + ui + "@" + uri
